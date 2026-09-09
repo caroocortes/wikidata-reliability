@@ -1,0 +1,30 @@
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?property_id ?property_label ?property_data_type (GROUP_CONCAT(DISTINCT ?property_alias; SEPARATOR=", ") AS ?aliases) ?property_description  ?frequency_update ?frequency_update_label ?has_characteristic_num_id WHERE {
+  ?property_id a wikibase:Property .
+  ?property_id wikibase:propertyType ?property_data_type .
+  ?property_id rdfs:label ?property_label .
+  ?property_id schema:description ?property_description.
+  BIND(EXISTS { ?property_id wdt:P1552 wd:Q93868746 } AS ?has_characteristic_num_id).
+  OPTIONAL {
+    ?property_id skos:altLabel ?property_alias .
+    FILTER(LANG(?property_alias) = "en")
+  }
+  OPTIONAL {
+    ?property_id wdt:P2668 ?frequency_update.
+    VALUES ?frequency_update { 
+        wd:Q24025284 # sometimes changes
+        wd:Q23611587 # continuously changes
+        wd:Q23611288 # never changes
+    }
+    ?frequency_update rdfs:label ?frequency_update_label.
+    FILTER(LANG(?frequency_update_label) = "en").
+  }
+  FILTER(LANG(?property_label) = "en").
+  FILTER(LANG(?property_description) = "en").
+}
+GROUP BY ?property_id ?property_label ?property_data_type ?property_description ?frequency_update ?frequency_update_label ?has_characteristic_num_id

@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Mine
+config/db_config.json
+data/*
+kgeval_supplementary_material/*
+property_type_classification/data/*
+!property_type_classification/data/properties_alias_desc_update_freq_numeric_id.csv
+!property_type_classification/data/property_labels_with_deleted.csv
+property_constraints/data/*
+
+*.sh
+set_up.yaml

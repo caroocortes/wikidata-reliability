@@ -1,0 +1,95 @@
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+SELECT ?propertyConstraint ?propertyConstraintLabel ?propertyConstraintDescription WHERE {
+  ?propertyConstraint wdt:P279 wd:Q21502402.
+  
+  ?propertyConstraint rdfs:label ?propertyConstraintLabel ;
+  FILTER(LANG (?propertyConstraintLabel) = "en").
+  
+  ?propertyConstraint schema:description ?propertyConstraintDescription ;
+  FILTER(LANG (?propertyConstraintDescription) = "en").
+}
+
+// PROPERTIES WITH RANGE CONSTRAINTS
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+
+# Get all properties with a range constraint 
+SELECT ?property ?propertyLabel ?propertyDescription ?minimumValue ?maximumValue ?constraint_status_label WHERE {
+  ?property rdfs:label ?propertyLabel ;
+  FILTER(LANG (?propertyLabel) = "en").
+  
+  ?property schema:description ?propertyDescription ;
+  FILTER(LANG (?propertyDescription) = "en").
+  
+  ?property p:P2302 ?s .
+  ?s ps:P2302 wd:Q21510860 .
+  ?s pq:P2312 ?maximumValue .
+  ?s pq:P2313 ?minimumValue .
+  
+  ?s pq:P2316 ?constraint_status .
+  ?constraint_status rdfs:label ?constraint_status_label .
+  FILTER(LANG (?constraint_status_label) = "en").
+  
+}
+
+// PROPERTIES WITH INTEGER CONSTRAINT
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+
+SELECT ?property ?propertyLabel ?propertyDescription ?constraint_status_label WHERE {
+  ?property rdfs:label ?propertyLabel ;
+  FILTER(LANG (?propertyLabel) = "en").
+  
+  ?property schema:description ?propertyDescription ;
+  FILTER(LANG (?propertyDescription) = "en").
+  
+  ?property p:P2302 ?s .
+  ?s ps:P2302 wd:Q52848401 .
+  
+  ?s pq:P2316 ?constraint_status .
+  ?constraint_status rdfs:label ?constraint_status_label .
+  FILTER(LANG (?constraint_status_label) = "en").
+}
+
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+
+# Get all properties with constraint type Q21502838 (required qualifier constraint)
+# where the qualifier is a time property, but this filter can be removed to just get all qualifier constraints
+SELECT ?property ?propertyLabel ?constraintType ?qualifierProperty ?qualifierLabel
+WHERE {
+  ?property a wikibase:Property ;
+            rdfs:label ?propertyLabel ;
+            p:P2302 ?constraintStatement .
+  
+  ?constraintStatement ps:P2302 ?constraintType ;
+                       pq:P2306 ?qualifierProperty .
+  
+  ?qualifierProperty rdfs:label ?qualifierLabel .
+  
+  # Filter for time-related qualifiers
+  FILTER(?qualifierProperty IN (wd:P585, wd:P580, wd:P582))
+  
+  FILTER(LANG(?propertyLabel) = "en")
+  FILTER(LANG(?qualifierLabel) = "en")
+}

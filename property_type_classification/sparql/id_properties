@@ -1,0 +1,43 @@
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?property_id ?propertyLabel ?datatype WHERE {
+  {
+    # datatype = External identifier
+    ?property a wikibase:Property ;
+              wikibase:propertyType wikibase:ExternalId .
+  }
+  UNION
+  {
+    # has characteristic (P1552) = numeric id (Q93868746)
+    ?property a wikibase:Property ;
+              wdt:P1552 wd:Q93868746 .
+  }
+  UNION
+  {
+    # label contains "ID" as a standalone word, AND description or alias
+    # contains "identif", "code", or "id"
+    ?property a wikibase:Property ;
+              rdfs:label ?labelEn .
+    FILTER(LANG(?labelEn) = "en")
+    FILTER(REGEX(?labelEn, "\\bID\\b", "i"))
+
+    OPTIONAL { ?property schema:description ?descEn . FILTER(LANG(?descEn) = "en") }
+    OPTIONAL { ?property skos:altLabel ?aliasEn . FILTER(LANG(?aliasEn) = "en") }
+
+    FILTER(
+      (BOUND(?descEn) && REGEX(?descEn, "identif|code|id", "i")) ||
+      (BOUND(?aliasEn) && REGEX(?aliasEn, "identif|code|id", "i"))
+    )
+  }
+
+  ?property rdfs:label ?propertyLabel .
+  FILTER(LANG(?propertyLabel) = "en")
+  OPTIONAL { ?property wikibase:propertyType ?datatype }
+  BIND(STRAFTER(STR(?property), "http://www.wikidata.org/entity/") AS ?property_id)
+}
+ORDER BY ?property_id
